@@ -52,6 +52,33 @@ int main(int argc, char *argv[]) {
     	}
 
     	printf("process=%d\nsimulation=%d\niteration=%d\n", process, simulation, iteration);
-    	return 0;
-}
+    	
+	// New child process
+	pid_t pid = fork();
+	
+	if (pid < 0) {
+		perror("fork error");
+		exit(EXIT_FAILURE);
+	} else if (pid == 0) {
+		
+		// Child process
+		char iteration_str[10];
+		snprintf(iteration_str, sizeof(iteration_str), "%d", iteration);
+		execl("./user", "user", iteration_str, (char *)NULL);
 
+		// Excel error
+		perror("execl error");
+		exit(EXIT_FAILURE);
+	} else {
+		// Parent process
+		int status;
+		waitpid(pid, &status, 0);
+		printf("Child process %d finished.\n", pid);
+	}
+
+
+
+
+	return 0;
+}
+	
